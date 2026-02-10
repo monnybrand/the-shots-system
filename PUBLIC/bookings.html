@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Manage Bookings | The Shots</title>
+<link rel="stylesheet" href="css/dashboard.css">
+<style>
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 10px; text-align: left; border: 1px solid #ccc; }
+    th { background: #1f1f1f; color: #fff; }
+    td.status-PENDING { color: orange; font-weight: bold; }
+    td.status-APPROVED { color: green; font-weight: bold; }
+    td.status-REJECTED { color: red; font-weight: bold; }
+    button { margin-right: 5px; padding: 5px 10px; cursor: pointer; }
+</style>
+</head>
+<body>
+<header style="background:#1f1f1f; color:#fff; padding:20px; display:flex; justify-content:space-between;">
+    <h2>All Bookings</h2>
+    <a href="admin_dashboard.html"><button>Back to Dashboard</button></a>
+</header>
+
+<main style="padding:30px;">
+    <table id="allBookingsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Client</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</main>
+
+<script>
+// Load all bookings
+async function loadAllBookings() {
+    try {
+        const res = await fetch("/bookings");
+        const bookings = await res.json();
+        const tbody = document.querySelector("#allBookingsTable tbody");
+        tbody.innerHTML = "";
+
+        bookings.forEach(b => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${b.id}</td>
+                <td>${b.client_name}</td>
+                <td>${b.service_name}</td>
+                <td>${new Date(b.booking_date).toLocaleString()}</td>
+                <td class="status-${b.status}">${b.status}</td>
+                <td>
+                    <button onclick="updateStatus(${b.id}, 'APPROVED')">Approve</button>
+                    <button onclick="updateStatus(${b.id}, 'REJECTED')">Reject</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (err) {
+        console.error("Failed to load bookings", err);
+        alert("Could not load bookings");
+    }
+}
+
+// Update booking status
+async function updateStatus(id, status) {
+    if (!confirm(`Are you sure you want to mark this booking as ${status}?`)) return;
+
+    try {
+        const res = await fetch(`/bookings/${id}/status`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        alert(data.message);
+        loadAllBookings();
+    } catch (err) {
+        console.error("Failed to update status", err);
+        alert("Could not update status");
+    }
+}
+
+// Initial load
+loadAllBookings();
+</script>
+</body>
+</html>

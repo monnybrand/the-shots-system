@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Shots | Cinematic Videography</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#000; color:white; font-family:Poppins; scroll-behavior:smooth; }
+
+/* ---------- NAVBAR ---------- */
+header {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    background:#111;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 40px;
+    z-index:100;
+}
+header h1 { font-family:Cinzel; font-size:2rem; color:gold; }
+nav a {
+    color:#fff;
+    margin:0 15px;
+    text-decoration:none;
+    font-weight:500;
+    transition:.3s;
+}
+nav a:hover { color:crimson; }
+
+/* ---------- HERO ---------- */
+.hero {
+    height:100vh;
+    position:relative;
+    overflow:hidden;
+}
+.hero video {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+.overlay {
+    position:absolute;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    flex-direction:column;
+}
+.overlay h1 {
+    font-family:Cinzel;
+    font-size:4rem;
+    text-shadow:0 0 40px crimson;
+}
+.overlay p { margin-top:10px; font-size:1.5rem; color:#fff; }
+.btn {
+    margin-top:20px;
+    padding:15px 40px;
+    border:none;
+    background:linear-gradient(120deg, crimson, gold);
+    color:black;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.4s;
+}
+.btn:hover { box-shadow:0 0 30px crimson; transform:scale(1.05); }
+
+/* ---------- SECTIONS ---------- */
+.section { padding:100px 10%; }
+.section h2 { font-family:Cinzel; font-size:2.5rem; margin-bottom:30px; color:gold; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px; }
+
+/* ---------- VIDEO CARD ---------- */
+.video-card { position:relative; overflow:hidden; border-radius:12px; }
+.video-card video { width:100%; height:auto; border-radius:12px; }
+
+/* ---------- CONTACT ---------- */
+#contact form { display:flex; flex-direction:column; max-width:600px; margin:auto; }
+#contact input, #contact textarea { padding:10px; margin:10px 0; background:#111; border:1px solid #333; color:#fff; border-radius:6px; }
+#contact button { width:fit-content; align-self:flex-start; }
+
+/* ---------- BOOK US BUTTON ---------- */
+#bookUsBtn {
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    padding:15px 25px;
+    font-size:18px;
+    background:linear-gradient(120deg, crimson, gold);
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+    border-radius:8px;
+    transition:.3s;
+}
+#bookUsBtn:hover { box-shadow:0 0 30px crimson; transform:scale(1.05); }
+</style>
+</head>
+
+<body>
+
+<!-- ---------- HEADER ---------- -->
+<header>
+    <h1>THE SHOTS</h1>
+    <nav>
+        <a href="#services">Services We Provide</a>
+        <a href="#contact">Contact Us</a>
+        <a href="login.html">Login</a>
+    </nav>
+</header>
+
+<!-- ---------- HERO ---------- -->
+<div class="hero">
+    <video autoplay muted loop>
+        <source src="/uploads/works/FULL KELVIN & AVILA  HIGH.mp4" type="video/mp4">
+    </video>
+    <div class="overlay">
+        <h1>THE SHOTS</h1>
+        <p>Cinematic Wedding & Corporate Films</p>
+        <button class="btn" onclick="window.location.href='login.html'">Book Now</button>
+    </div>
+</div>
+
+
+<!-- ---------- SERVICES ---------- -->
+<div class="section" id="services">
+    <h2>Services We Provide</h2>
+    <div class="grid" id="servicesContainer"></div>
+</div>
+
+<!-- ---------- CONTACT ---------- -->
+<div class="section" id="contact">
+    <h2>Contact Us</h2>
+    <form>
+        <input type="text" placeholder="Your Name" required>
+        <input type="email" placeholder="Email" required>
+        <textarea placeholder="Message" rows="5" required></textarea>
+        <button type="submit">Send Message</button>
+    </form>
+</div>
+
+<!-- ---------- FLOATING BOOK US BUTTON ---------- -->
+<button id="bookUsBtn" onclick="window.location.href='login.html'">Book Us</button>
+
+<script>
+// ---------- SCROLL FUNCTION ----------
+function scrollToSection(id){
+    document.getElementById(id).scrollIntoView({behavior:"smooth"});
+}
+
+// ---------- LOAD WORKS ----------
+fetch("/api/works")
+.then(res=>res.json())
+.then(data=>{
+    const container=document.getElementById("worksContainer");
+    container.innerHTML="";
+    data.slice(0,6).forEach(w=>{
+        container.innerHTML+=`
+        <div class="video-card">
+            <video src="${w.video_url}" controls muted></video>
+        </div>
+        `;
+    });
+});
+
+// ---------- LOAD SERVICES ----------
+fetch("/api/services")
+.then(res=>res.json())
+.then(data=>{
+    const container=document.getElementById("servicesContainer");
+    container.innerHTML="";
+    data.forEach(s=>{
+        container.innerHTML+=`
+        <div class="video-card" style="padding:15px; border:1px solid #333;">
+            <h3 style="color:gold;">${s.service_name}</h3>
+            <p>${s.description}</p>
+            <p>Price: $${s.price}</p>
+        </div>
+        `;
+    });
+});
+</script>
+
+</body>
+</html>

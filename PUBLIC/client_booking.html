@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Service | The Shots</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<div class="login-container">
+    <h1>Book a Service</h1>
+    <select id="serviceSelect"></select>
+    <input type="datetime-local" id="bookingDate">
+    <button id="bookBtn">Book Now</button>
+</div>
+
+<script>
+function loadServices() {
+    fetch("/api/services")
+    .then(res=>res.json())
+    .then(data=>{
+        const select=document.getElementById("serviceSelect");
+        data.forEach(s=>{
+            const option=document.createElement("option");
+            option.value=s.id;
+            option.textContent=s.name;
+            select.appendChild(option);
+        });
+    });
+}
+
+document.getElementById("bookBtn").addEventListener("click",()=>{
+    const service_id=document.getElementById("serviceSelect").value;
+    const date=document.getElementById("bookingDate").value;
+    fetch("/api/bookings",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({service_id,date})
+    })
+    .then(res=>res.json())
+    .then(data=>{
+        alert(data.message);
+        if(data.message.includes("success")) window.location="client_dashboard.html";
+    })
+    .catch(err=>alert("Server error"));
+});
+
+loadServices();
+</script>
+</body>
+</html>

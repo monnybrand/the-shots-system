@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | The Shots</title>
+    <!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+<div class="login-container">
+    <h1>Login</h1>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button id="loginBtn">Login</button>
+
+    <p style="margin-top:15px;">New client? <a href="register.html">Register here</a></p>
+</div>
+
+<script>
+document.getElementById("loginBtn").addEventListener("click", ()=>{
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    fetch("/api/login", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.message.includes("Login successful")){
+            
+            // -------------------------------
+            // 1️⃣ Store user info in session
+            // -------------------------------
+            sessionStorage.setItem("userId", data.user.id);
+            sessionStorage.setItem("role", data.user.role);
+
+            // Redirect based on role
+            if(data.user.role === "ADMIN") window.location = "admin_dashboard.html";
+            else window.location = "client_dashboard.html";
+
+        } else {
+            alert(data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Server error. Check console for details.");
+    });
+});
+</script>
+</body>
+</html>

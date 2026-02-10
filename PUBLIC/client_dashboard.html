@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Client Dashboard | The Shots</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0b0b0b; color:white; font-family:Roboto; }
+
+/* ---------- NAVBAR ---------- */
+header {
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    background:#111;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 40px;
+    z-index:100;
+}
+header h1 { font-family:Cinzel; font-size:1.8rem; color:gold; }
+nav a {
+    color:#fff;
+    margin:0 15px;
+    text-decoration:none;
+    font-weight:500;
+    transition:.3s;
+}
+nav a:hover { color:crimson; }
+
+/* ---------- MAIN ---------- */
+main {
+    padding:120px 40px 60px; /* top padding for navbar */
+    max-width:1000px;
+    margin:auto;
+}
+
+/* ---------- HEADINGS ---------- */
+h2,h3 { font-family:Cinzel; margin-bottom:20px; }
+h2 { color:gold; }
+
+/* ---------- TABLES ---------- */
+table {
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:40px;
+}
+th, td {
+    padding:12px;
+    border-bottom:1px solid #333;
+    text-align:left;
+}
+.status-PENDING { color:gold; }
+.status-APPROVED { color:lime; }
+.status-REJECTED { color:red; }
+
+/* ---------- FORM ELEMENTS ---------- */
+select, input[type="date"], button {
+    padding:10px;
+    margin:10px 0;
+    background:#111;
+    border:1px solid #333;
+    color:#fff;
+    border-radius:6px;
+    width:100%;
+    font-size:1rem;
+}
+button {
+    background:linear-gradient(120deg, crimson, gold);
+    font-weight:bold;
+    cursor:pointer;
+    transition:.3s;
+}
+button:hover {
+    box-shadow:0 0 20px crimson;
+    transform:scale(1.05);
+}
+
+/* ---------- SECTIONS ---------- */
+.section { margin-bottom:50px; }
+
+/* ---------- BOOK US BUTTON ---------- */
+#bookUsBtn {
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    padding:15px 25px;
+    font-size:18px;
+    background:linear-gradient(120deg, crimson, gold);
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+    border-radius:8px;
+    transition:.3s;
+    z-index:50;
+}
+#bookUsBtn:hover { box-shadow:0 0 30px crimson; transform:scale(1.05); }
+</style>
+</head>
+
+<body>
+
+<!-- ---------- HEADER ---------- -->
+<header>
+    <h1>Dashboard</h1>
+    <nav>
+        <a href="#bookingsSection">Bookings</a>
+        <button onclick="logout()" style="background:crimson; padding:5px 15px; border-radius:5px;">Logout</button>
+    </nav>
+</header>
+
+<main>
+
+<!-- ---------- WELCOME ---------- -->
+<section class="section" id="welcomeSection">
+    <h3>Welcome, <span id="clientName">Client</span></h3>
+</section>
+
+
+
+
+<!-- ---------- BOOKINGS ---------- -->
+<section class="section" id="bookingsSection">
+    <h2>Your Bookings</h2>
+    <table border="1" id="clientBookingsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Service</th>
+                <th>Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <h2>Book a New Service</h2>
+    <select id="serviceSelect">
+        <option value="">Select a service</option>
+    </select>
+    <input type="date" id="bookingDate">
+    <button id="bookServiceBtn">Book Service</button>
+    <p id="bookingMessage" style="color:lime;"></p>
+</section>
+
+</main>
+
+
+
+<script>
+/* ---------------------------- LOGOUT ---------------------------- */
+function logout() {
+    sessionStorage.clear();
+    window.location = "login.html";
+}
+
+/* ---------------------------- INITIAL USER INFO ---------------------------- */
+const clientNameSpan = document.getElementById("clientName");
+const userId = sessionStorage.getItem("userId");
+const userName = sessionStorage.getItem("userName");
+const userRole = sessionStorage.getItem("role");
+
+if(!userId || !userRole || userRole!=="CLIENT") window.location="login.html";
+clientNameSpan.textContent = userName;
+
+/* ---------------------------- LOAD CLIENT BOOKINGS ---------------------------- */
+async function loadClientBookings() {
+    try {
+        const res = await fetch(`/api/bookings/${userId}`);
+        const bookings = await res.json();
+        const tbody = document.querySelector("#clientBookingsTable tbody");
+        tbody.innerHTML = "";
+        if(bookings.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='4'>No bookings yet.</td></tr>";
+            return;
+        }
+        bookings.forEach(b=>{
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${b.id}</td>
+                <td>${b.service_name}</td>
+                <td>${new Date(b.booking_date).toLocaleDateString()}</td>
+                <td class="status-${b.status}">${b.status}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch(err) {
+        console.error("Failed to load client bookings:", err);
+        document.querySelector("#clientBookingsTable tbody").innerHTML = "<tr><td colspan='4'>Failed to load bookings</td></tr>";
+    }
+}
+
+/* ---------------------------- LOAD SERVICES ---------------------------- */
+async function loadServices() {
+    try {
+        const res = await fetch("/api/services");
+        const services = await res.json();
+        const select = document.getElementById("serviceSelect");
+        select.innerHTML = '<option value="">Select a service</option>';
+        services.forEach(s=>{
+            const option = document.createElement("option");
+            option.value = s.id;
+            option.textContent = `${s.service_name} - $${s.price}`;
+            select.appendChild(option);
+        });
+    } catch(err) {
+        console.error("Failed to load services:", err);
+    }
+}
+
+/* ---------------------------- BOOK A SERVICE ---------------------------- */
+document.getElementById("bookServiceBtn").addEventListener("click", async ()=>{
+    const serviceId = document.getElementById("serviceSelect").value;
+    const bookingDate = document.getElementById("bookingDate").value;
+
+    if(!serviceId){ alert("Please select a service"); return; }
+    if(!bookingDate){ alert("Please select a date"); return; }
+
+    try{
+        const res = await fetch("/api/bookings",{
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body: JSON.stringify({ client_id:userId, service_id:serviceId, booking_date:bookingDate })
+        });
+        const data = await res.json();
+        if(res.ok){
+            document.getElementById("bookingMessage").textContent = data.message;
+            document.getElementById("serviceSelect").value="";
+            document.getElementById("bookingDate").value="";
+            loadClientBookings();
+        } else {
+            alert(data.message);
+        }
+    } catch(err){
+        console.error("Booking failed:", err);
+        alert("Failed to book service");
+    }
+});
+
+
+
+/* ---------------------------- LOAD WORKS ---------------------------- */
+fetch("/api/works")
+.then(res=>res.json())
+.then(data=>{
+    const container=document.getElementById("worksContainer");
+    container.innerHTML="";
+    data.forEach(w=>{
+        container.innerHTML+=`
+        <div style="margin-bottom:20px;">
+            <video src="${w.video_url}" controls muted style="width:100%; border-radius:12px;"></video>
+            <h4 style="margin-top:10px; color:gold;">${w.title}</h4>
+            <p>${w.description || ''}</p>
+        </div>
+        `;
+    });
+});
+
+/* ---------------------------- SCROLL FUNCTION ---------------------------- */
+function scrollToSection(id){ document.getElementById(id).scrollIntoView({behavior:"smooth"}); }
+
+/* ---------------------------- INITIAL LOAD ---------------------------- */
+loadClientBookings();
+loadServices();
+</script>
+
+</body>
+</html>
