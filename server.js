@@ -10,7 +10,7 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "../public"))); // serve frontend
+app.use(express.static(path.join(__dirname, "public"))); // serve frontend
 
 
 const storage = multer.diskStorage({
@@ -276,3 +276,4 @@ app.get("/", (req, res) => {
 // START SERVER
 // ----------------------
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+
