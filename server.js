@@ -39,7 +39,7 @@ const upload = multer({
 
 // Serve login.html for root
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "login.html"));
+    res.sendFile(path.join(__dirname, "public/login.html"));
 });
 
 // Example: Serve dashboard.html if you have one
@@ -143,4 +143,5 @@ app.get("/api/works", (req, res) => {
 // START SERVER
 // ----------------------
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+
 
