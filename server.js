@@ -241,7 +241,7 @@ app.get("/api/dashboard-stats", (req, res) => {
 // DEFAULT ROUTE
 // ----------------------
 app.get("/", (req, res) => {
-    res.sendFile(path.join(publicPath, "login.html"));
+    res.sendFile(path.join(publicPath, "index.html"));
 });
 
 // ----------------------
