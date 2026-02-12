@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 3000;
 // ----------------------
 // STATIC FILES (FRONTEND)
 // ----------------------
-const publicPath = path.resolve(__dirname, "public");
+const publicPath = path.resolve(__dirname, "/public");
 app.use(express.static(publicPath));
 
 // ----------------------
@@ -241,7 +241,7 @@ app.get("/api/dashboard-stats", (req, res) => {
 // DEFAULT ROUTE
 // ----------------------
 app.get("/", (req, res) => {
-    res.sendFile(path.join(publicPath, "login.html"));
+    res.sendFile(path.join(publicPath, "/login.html"));
 });
 
 // ----------------------
