@@ -1,19 +1,27 @@
-// server.js
 const express = require("express");
 const cors = require("cors");
-const db = require("./db"); // Railway MySQL connection
+const db = require("./db"); // Make sure db.js exports a working connection
 const path = require("path");
 const multer = require("multer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// ----------------------
+// STATIC FILES (FRONTEND)
+// ----------------------
+const publicPath = path.resolve(__dirname, "public");
+app.use(express.static(publicPath));
+
+// ----------------------
+// MIDDLEWARE
+// ----------------------
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "public"))); // serve frontend
 
-// Multer setup for video uploads
+// ----------------------
+// MULTER CONFIGURATION
+// ----------------------
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, path.join(__dirname, "uploads/works"));
@@ -32,8 +40,10 @@ const upload = multer({
 });
 
 // ----------------------
-// AUTH ROUTES
+// USER AUTH ROUTES
 // ----------------------
+
+// REGISTER
 app.post("/api/register", (req, res) => {
     const { full_name, email, password } = req.body;
     const role = "CLIENT";
@@ -52,13 +62,18 @@ app.post("/api/register", (req, res) => {
     });
 });
 
+// LOGIN
 app.post("/api/login", (req, res) => {
     const { email, password } = req.body;
+
     if (!email || !password) return res.status(400).json({ message: "Email and password required" });
 
     const sql = "SELECT id, full_name, role FROM users WHERE email=? AND password=?";
     db.query(sql, [email, password], (err, result) => {
-        if (err) return res.status(500).json({ message: err.message });
+        if (err) {
+            console.error("LOGIN ERROR:", err);
+            return res.status(500).json({ message: err.message });
+        }
         if (result.length === 0) return res.status(401).json({ message: "Invalid email or password" });
         res.json({ message: "Login successful", user: result[0] });
     });
@@ -129,8 +144,20 @@ app.get("/api/bookings/:clientId", (req, res) => {
         ORDER BY b.booking_date DESC
     `;
     db.query(sql, [clientId], (err, results) => {
-        if (err) return res.status(500).json({ message: err.message });
+        if(err) return res.status(500).json({ message: err.message });
         res.json(results);
+    });
+});
+
+app.post("/api/bookings", (req, res) => {
+    const { client_id, service_id, booking_date } = req.body;
+
+    if (!client_id || !service_id || !booking_date) return res.status(400).json({ message: "Client ID, Service ID, and booking date required" });
+
+    const sql = "INSERT INTO bookings (client_id, service_id, booking_date, status) VALUES (?, ?, ?, 'PENDING')";
+    db.query(sql, [client_id, service_id, booking_date], (err, result) => {
+        if (err) return res.status(500).json({ message: "Failed to create booking" });
+        res.json({ message: "Booking created successfully", bookingId: result.insertId });
     });
 });
 
@@ -143,19 +170,8 @@ app.put("/api/bookings/:id/status", (req, res) => {
     });
 });
 
-app.post("/api/bookings", (req, res) => {
-    const { client_id, service_id, booking_date } = req.body;
-    if (!client_id || !service_id || !booking_date) return res.status(400).json({ message: "All fields required" });
-
-    const sql = "INSERT INTO bookings (client_id, service_id, booking_date, status) VALUES (?, ?, ?, 'PENDING')";
-    db.query(sql, [client_id, service_id, booking_date], (err, result) => {
-        if (err) return res.status(500).json({ message: "Failed to create booking" });
-        res.json({ message: "Booking created successfully", bookingId: result.insertId });
-    });
-});
-
 // ----------------------
-// WORKS
+// WORKS CRUD
 // ----------------------
 app.get("/api/works", (req, res) => {
     db.query("SELECT * FROM works ORDER BY created_at DESC", (err, results) => {
@@ -166,6 +182,7 @@ app.get("/api/works", (req, res) => {
 
 app.post("/api/works", (req, res) => {
     const { title, category, video_url, description } = req.body;
+
     if (!title || !category || !video_url) return res.status(400).json({ message: "Required fields missing" });
 
     const sql = "INSERT INTO works (title, category, video_url, description) VALUES (?, ?, ?, ?)";
@@ -178,7 +195,7 @@ app.post("/api/works", (req, res) => {
 app.delete("/api/works/:id", (req, res) => {
     db.query("DELETE FROM works WHERE id=?", [req.params.id], err => {
         if (err) return res.status(500).json({ message: "Failed to delete work" });
-        res.json({ message: "Work deleted successfully" });
+        res.json({ message: "Work deleted" });
     });
 });
 
@@ -221,10 +238,10 @@ app.get("/api/dashboard-stats", (req, res) => {
 });
 
 // ----------------------
-// DEFAULT PAGE
+// DEFAULT ROUTE
 // ----------------------
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public/login.html"));
+    res.sendFile(path.join(publicPath, "login.html"));
 });
 
 // ----------------------
