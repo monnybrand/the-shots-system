@@ -1,0 +1,113 @@
+/* Apply Roboto for body */
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Headings cinematic font */
+.login-container h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 32px;
+    margin-bottom: 25px;
+    text-shadow: 0 0 15px #ff4b2b, 0 0 25px #ff416c;
+    letter-spacing: 1px;
+}
+
+
+
+/* General body */
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: #fff;
+}
+
+/* Centered login/register container */
+.login-container {
+    background: rgba(0,0,0,0.7);
+    padding: 40px;
+    border-radius: 12px;
+    width: 350px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    animation: fadeIn 1s ease;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Headings */
+.login-container h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    margin-bottom: 25px;
+    text-shadow: 0 0 10px #ff4b2b;
+}
+
+/* Inputs */
+.login-container input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    transition: 0.3s;
+}
+
+.login-container input:focus {
+    background: rgba(255,255,255,0.2);
+    outline: none;
+}
+
+/* Buttons */
+.login-container button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    transition: 0.3s ease;
+}
+
+.login-container button:hover {
+    animation: cinematicLight 1.5s infinite;
+}
+
+/* Cinematic hover effect */
+@keyframes cinematicLight {
+    0% { box-shadow: 0 0 10px #ff416c, 0 0 20px #ff4b2b; transform: translateY(0); }
+    50% { box-shadow: 0 0 20px #ff4b2b, 0 0 30px #ff416c; transform: translateY(-3px); }
+    100% { box-shadow: 0 0 10px #ff416c, 0 0 20px #ff4b2b; transform: translateY(0); }
+}
+
+/* Links */
+.login-container p {
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.login-container a {
+    color: #ff416c;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-container a:hover {
+    text-decoration: underline;
+}
